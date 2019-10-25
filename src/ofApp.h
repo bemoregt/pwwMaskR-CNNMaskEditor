@@ -23,6 +23,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-    ofImage aa, bb;
+    ofImage aa, temp;
+    ofFbo fbo1;
     string filename;
 };
