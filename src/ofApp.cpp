@@ -7,11 +7,16 @@ using namespace ofxCv;
 void ofApp::setup(){
 
     ofBackground(0);
-    ofSetBackgroundAuto(false);
     
+    // 드로우시 배경 삭제 안되게..
+    ofSetBackgroundAuto(false);
+    // 초기 이미지 에러핸들링
     if(filename != ""){
         aa.load(filename);
     }
+    
+    //
+    fbo1.allocate(512, 512, GL_RGBA);
 }
 
 //--------------------------------------------------------------
@@ -22,36 +27,44 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    int xx, yy;
-    xx= ofGetMouseX()+512;
-    if(xx > 507) xx=507;
-    
-    yy= ofGetMouseY();
-    
-    if(aa.isAllocated()){
-        aa.draw(0, 0, 512, 512);
-        if (ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)) {
-            //
-            ofSetColor(1);
-            ofDrawCircle(xx, yy, 5);
-            //
-            ofSetColor(255, 255, 0, 100);
-            ofDrawCircle(xx, yy, 5);
-        }
-    }
+    //int xx, yy;
+    int x, y;
+    //x
+    x= ofGetMouseX();
+    //y
+    y= ofGetMouseY();
 
+    // 좌측에 이미지 띄우고
+    if(aa.isAllocated()){
+        if (ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)) {
+            // 화면에 주황색 그리기
+            ofSetColor(255, 155, 0);
+            ofDrawCircle(x, y, 5);
+            // 메모리 버퍼에 그리기
+            fbo1.begin();
+                ofSetColor(1);
+                ofDrawCircle(x, y, 5);
+            fbo1.end();
+            
+            ofSetWindowTitle("Mouse Drawing ...");
+        }// if mousePressed
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-    if(key == 's') {
-        bb.allocate(512, 512, OF_IMAGE_GRAYSCALE);
-        bb.grabScreen(512, 0, 512, 512);
-        bb.setImageType(OF_IMAGE_GRAYSCALE);
-        bb.save("/Users/kerbal/Desktop/1_mask.png");
+    if(key == 'm' || key =='M'){
+
+        fbo1.begin();
+            
+            temp.grabScreen(0, 0, 512, 512);
+            temp.saveImage("/Users/Kerbal/Desktop/mask.jpg");
+            aa.saveImage("/Users/Kerbal/Desktop/image.jpg");
+        fbo1.end();
+        ofClear(0, 255);
         
-        ofLog() <<"Saved OK !" ;
+        ofSetWindowTitle("Image and Mask file Saved ~ !!");
     }
 }
 
@@ -108,9 +121,13 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
         filename= dragInfo.files[0];
         aa.load(filename);
         //img.setImageType(OF_IMAGE_COLOR);
+        ofSetColor(255);
+        aa.draw(0, 0, 512, 512);
     }
     
     // clear
-    ofBackground(0);
+    //ofBackground(0);
     ofSetBackgroundAuto(false);
+    
+    ofSetWindowTitle("Image Loaded ~");
 }
